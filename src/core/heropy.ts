@@ -1,5 +1,5 @@
 ///// Component /////
-interface ComponentPayload{
+interface ComponentPayload {
   tagName?: string
   props?: {
     [key: string]: unknown
@@ -8,19 +8,20 @@ interface ComponentPayload{
     [key: string]: unknown
   }
 }
+
 export class Component {
-  public el
-  public props
-  public state
+  public el // 컴포넌트의 최상위 요소
+  public props // 컴포넌트가 사용될 때 부모 컴포넌트에서 받는 데이터
+  public state // 컴포넌트 안에서 사용할 데이터
   constructor(payload: ComponentPayload = {}) {
     const {
       tagName = 'div', // 최상위 요소의 태그 이름
       props = {},
       state = {}
     } = payload
-    this.el = document.createElement(tagName) // 컴포넌트의 최상위 요소
-    this.props = props // 컴포넌트가 사용될 때 부모 컴포넌트에서 받는 데이터
-    this.state = state // 컴포넌트 안에서 사용할 데이터
+    this.el = document.createElement(tagName)
+    this.props = props
+    this.state = state
     this.render()
   }
   render() { // 컴포넌트를 렌더링하는 함수
@@ -35,8 +36,9 @@ interface Route {
   component: typeof Component
 }
 type Routes = Route[]
+
 // 페이지 렌더링!
-function routeRender(routes:Routes) {
+function routeRender(routes: Routes) {
   // 접속할 때 해시 모드가 아니면(해시가 없으면) /#/로 리다이렉트!
   if (!location.hash) {
     history.replaceState(null, '', '/#/') // (상태, 제목, 주소)
@@ -59,7 +61,7 @@ function routeRender(routes:Routes) {
 
   // 2) 현재 라우트 정보를 찾아서 렌더링!
   const currentRoute = routes.find(route => new RegExp(`${route.path}/?$`).test(hash))
-  if(routerView){
+  if (routerView) {
     routerView.innerHTML = ''
     currentRoute && routerView.append(new currentRoute.component().el)
   }
@@ -79,16 +81,16 @@ export function createRouter(routes: Routes) {
 
 
 ///// Store /////
-interface StoreObservers{
+interface StoreObservers {
   [key: string]: SubscribeCallback[]
 }
-
-interface SubscribeCallback{
+interface SubscribeCallback {
   (arg: unknown): void
 }
+
 export class Store<S> {
   public state = {} as S // 상태(데이터)
-  private observers = {} as StoreObservers
+  private observers = {} as StoreObservers // 상태 변경 감지를 통해 실행할 콜백
   constructor(state: S) {
     for (const key in state) {
       // 각 상태에 대한 변경 감시(Setter) 설정!
