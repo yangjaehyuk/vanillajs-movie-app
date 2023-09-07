@@ -1,12 +1,12 @@
 import { Store } from '../core/heropy'
-export interface SimpleMovie{
+const { APIKEY } = process.env
+export interface SimpleMovie {
   Title: string
   Year: string
   imdbID: string
   Type: string
   Poster: string
 }
-
 interface DetailedMovie {
   Title: string
   Year: string
@@ -22,7 +22,10 @@ interface DetailedMovie {
   Country: string
   Awards: string
   Poster: string
-  Ratings: Rating[]
+  Ratings: {
+    Source: string
+    Value: string
+  }[]
   Metascore: string
   imdbRating: string
   imdbVotes: string
@@ -34,22 +37,15 @@ interface DetailedMovie {
   Website: string
   Response: string
 }
-
-interface Rating {
-  Source: string
-  Value: string
-}
-
-interface State{
+interface State {
   searchText: string
   page: number
   pageMax: number
   movies: SimpleMovie[]
   movie: DetailedMovie
-  loading: boolean
   message: string
+  loading: boolean
 }
-
 const store = new Store<State>({
   searchText: '',
   page: 1,
@@ -61,7 +57,7 @@ const store = new Store<State>({
 })
 
 export default store
-export const searchMovies = async (page:number) => {
+export const searchMovies = async (page: number) => {
   store.state.loading = true
   store.state.page = page
   if (page === 1) {
@@ -69,14 +65,7 @@ export const searchMovies = async (page:number) => {
     store.state.message = ''
   }
   try {
-    // const res = await fetch(`https://omdbapi.com?apikey=7035c60c&s=${store.state.searchText}&page=${page}`)
-    const res = await fetch('/api/movie', {
-      method: 'POST',
-      body: JSON.stringify({
-        title: store.state.searchText,
-        page
-      })
-    })
+    const res = await fetch(`https://omdbapi.com?apikey=${APIKEY}&s=${store.state.searchText}&page=${page}`)
     const { Response, Search, totalResults, Error } = await res.json()
     if (Response === 'True') {
       store.state.movies = [
@@ -96,15 +85,9 @@ export const searchMovies = async (page:number) => {
 }
 export const getMovieDetails = async (id:string) => {
   try {
-    // const res = await fetch(`https://omdbapi.com?apikey=${APIKEY}&i=${id}&plot=full`)
-    const res = await fetch('/api/movie', {
-      method: 'POST',
-      body: JSON.stringify({
-        id
-      })
-    })
-    store.state.movie = await res.json()
+      const res = await fetch(`https://omdbapi.com?apikey=${APIKEY}&i=${id}&plot=full`)
+      store.state.movie = await res.json()
   } catch (error) {
-    console.log('getMovieDetails error:', error)
+      console.log('getMovieDetails error:', error)
   }
 }

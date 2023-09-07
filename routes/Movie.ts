@@ -16,7 +16,7 @@ export default class Movie extends Component {
    await getMovieDetails(history.state.id)
    console.log(movieStore.state.movie)
    const {movie} = movieStore.state
-   const bigPoster = movie.Poster.replace('SX300','SX700')
+   const bigPoster = movie.Poster.replace('SX300', 'SX700')
    this.el.innerHTML = /* html */`
     <div style="background-image: url(${bigPoster})" class="poster"></div>
     <div class="specs">
